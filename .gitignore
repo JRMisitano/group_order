@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+package-lock.json
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +17,7 @@
 # next.js
 /.next/
 /out/
+/build/
 
 # production
 /build
@@ -23,6 +25,10 @@
 # misc
 .DS_Store
 *.pem
+/pids/
+/logs/
+/results/
+/.swc/
 
 # debug
 npm-debug.log*
@@ -39,3 +45,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Editor-specific files
+.sublime-project
+.sublime-workspace
