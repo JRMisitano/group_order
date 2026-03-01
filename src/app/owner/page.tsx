@@ -10,18 +10,18 @@ import MenuItem from '@mui/material/MenuItem';
 
 export default function Owner() {
   const handleDone = () => {
-    alert ("it's done")
+    postGroup();
   }
 
+  const [isDone, setIsDone] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [selectedRestaurant, setSelectedRestaurant] =useState(null);
   const [guestEmails, setGuestEmails] = useState([]);
 
   const [restaurantData, setRestaurantData] = useState(null);
-
-
   const [menuData, setMenuData] = useState(null);
+
   const [isLoadingMenu, setLoadingMenu] = useState(true);
 
   useEffect(() => {
@@ -37,10 +37,25 @@ export default function Owner() {
       })
   }, [])
 
-  const cleanGroupName = (groupName) => {
-    const cleaned = groupName.replace(/[^a-zA-Z0-9\s]/g, '');
-    console.log(cleaned);
-    setGroupName(cleaned);  
+  const renderDoneButton = () => {
+    const readyToSubmit = 
+      !!groupName && 
+      !!ownerEmail && 
+      !!selectedRestaurant &&
+      !!guestEmails.length &&
+      !isDone;
+    console.log(readyToSubmit)
+
+    //console.log(groupName , ownerEmail , selectedRestaurant , guestEmails.length , !isDone)
+    return (
+      <Button 
+        onClick = {handleDone} 
+        variant = 'outlined'
+        disabled = {!readyToSubmit}
+      >
+        Done 
+      </Button>
+      )
   }
 
   const renderGuestEmails = (emails) => {
@@ -48,25 +63,58 @@ export default function Owner() {
     for (let i = 0; i < 3; i++) {
       if( i <= emails.length){
         emailFields.push(
-           <TextField
+           <div class = "m-5">
+            <TextField
                 label="Enter a Guest's Email" 
-                sx = {{width: 300}}
+                sx = {{width: 260}}
                 variant = "outlined"
                 value = {emails[i]}
                 inputProps = {{maxLength : 255}}
+                key = {i}
                 onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
                   let temp = guestEmails;
                   temp[i] = event.target.value;
-                  console.log(temp)
                   setGuestEmails([...temp]);
                 }
               }
             />
+          </div>
         );
       }
     }
     return emailFields;
   };
+
+  const postGroup = async () => {
+    //setError(null); 
+    const postData = {
+      "name": groupName, 
+      "owner": ownerEmail,
+      "emails": guestEmails, 
+      "restaurant": selectedRestaurant
+    }; 
+
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+      setIsDone(true);
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  };
+
   /*useEffect(() => {
     fetch(`https://group-order.jr373.workers.dev/api/menu?value=${selectedRestaurant.menu}`)
       .then((res) => res.json())
@@ -84,7 +132,7 @@ export default function Owner() {
 
   return (
     <>
-      <div class = 'block'> Create a group </div>
+      <div class = 'text-3xl m-5'> Create a group </div>
       
         <div class = 'm-5'>
           <TextField
@@ -106,8 +154,8 @@ export default function Owner() {
             value={groupName}
             inputProps = {{maxLength : 30}}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              event.target.value = event.target.value.replace(/[^a-zA-Z0-9\s]$/g, '');
-              setGroupName(event.target.value);
+              const cleaned = event.target.value.replace(/[^a-zA-Z0-9\s]$/g, '').trim();
+              setGroupName(cleaned);
             }}
           />
         </div>
@@ -118,7 +166,9 @@ export default function Owner() {
               sx={{ width: 300 }}
               label-id= "restaurant-select-label"
               label="Select Restaurant"
-              onChange={setSelectedRestaurant}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setSelectedRestaurant(event.target.value);
+            }}
             >
             {restaurantData.map((restaurant) => (
               <MenuItem value={restaurant}>{restaurant.name}</MenuItem>
@@ -127,12 +177,12 @@ export default function Owner() {
         </FormControl>
       </div>
 
-      <div class = 'border'>
+      <div class = 'border m-5 w-75'>
         {renderGuestEmails(guestEmails)}
       </div>  
 
       <div class = 'm-5'>
-        <Button onClick = {handleDone} variant = 'outlined'> Done </Button>
+        {renderDoneButton()}
       </div>
     </>
   );
