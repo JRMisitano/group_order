@@ -3,9 +3,6 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   cssVariables: true,
-  typography: {
-    fontFamily: 'var(--font-roboto)',
-  },
   palette: {
     mode: 'dark',
     primary: {
@@ -13,10 +10,6 @@ const theme = createTheme({
     },
     secondary: {
       main: '#2ec5d3',
-    },
-    background: {
-      default: '#192231',
-      paper: '#24344d',
     },
   },
 });

@@ -3,29 +3,24 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 import "./globals.css";
 
-import { Roboto } from 'next/font/google';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
+import theme from './theme';
 
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto',
-});
+import TopBar from '../components/TopBar';
+
 
 export const metadata: Metadata = {
   title: "Group Ordering App",
   description: "Order a meal for you and your friends or coworkers.",
 };
 
-
 export default function RootLayout(props) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en" >
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
+            <TopBar />
             {props.children}
           </ThemeProvider>
         </AppRouterCacheProvider>

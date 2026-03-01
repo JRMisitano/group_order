@@ -2,6 +2,7 @@
   "name": "group-order",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3000/",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
