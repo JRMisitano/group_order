@@ -8,6 +8,7 @@ import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
+import Menu from '../../components/Menu';
 
 export default function Owner() {
   interface Group {
@@ -43,12 +44,25 @@ export default function Owner() {
         }); 
         setRestaurantData(valuesArray);
         setLoadingRestaurant(false);
-/////////////////////
-     // setIsDone(true);
-      //completeGroup({"name":"dsdsf","owner":"jr373@hotmail.com","emails":["some@email.com","more@email.com"],"restaurant":{"name":"Sara's Subs","menu":"menu_1","id":"restaurant_1"},"orders":{},"open":true,"id":"dsdsf 1772403156232"})
-//////////////////
       })
   }, [])
+
+  useEffect(() => {
+    console.log(selectedRestaurant)
+    if (selectedRestaurant) {
+      fetch(`https://group-order.jr373.workers.dev/api/menu?value=${selectedRestaurant.menu}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setMenuData(data);
+          console.log(data);
+  /////////////////////
+       // setIsDone(true);
+        //completeGroup({"name":"dsdsf","owner":"jr373@hotmail.com","emails":["some@email.com","more@email.com"],"restaurant":{"name":"Sara's Subs","menu":"menu_1","id":"restaurant_1"},"orders":{},"open":true,"id":"dsdsf 1772403156232"})
+  //////////////////
+      })
+    }
+  }, [selectedRestaurant])
+
 
   const handleDone = () => {
     postGroup();
@@ -172,56 +186,64 @@ export default function Owner() {
   return (
     <>
       <p class = 'text-3xl m-5'> Create a group </p>
-      
-        <div class = 'm-5'>
-          <TextField
-            label="Enter Your Email" 
-            sx = {{ width: 300 }}
-            variant = "outlined"
-            value = {ownerEmail}
-            inputProps = {{maxLength : 255}}
-            onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
-              setOwnerEmail(event.target.value);
-            }}
-          />
-        </div>  
-        <div class = 'm-5'>
-          <TextField
-            label="Name Your Group" 
-            sx={{ width: 300 }}
-            variant="outlined"
-            value={groupName}
-            inputProps = {{maxLength : 30}}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const cleaned = event.target.value.replace(/[^a-zA-Z0-9\s]$/g, '').trim();
-              setGroupName(cleaned);
-            }}
-          />
+        <div class ='flex'>
+          <div>
+            <div class = 'm-5'>
+              <TextField
+                label="Enter Your Email" 
+                sx = {{ width: 300 }}
+                variant = "outlined"
+                value = {ownerEmail}
+                inputProps = {{maxLength : 255}}
+                onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setOwnerEmail(event.target.value);
+                }}
+              />
+            </div>  
+            <div class = 'm-5'>
+              <TextField
+                label="Name Your Group" 
+                sx={{ width: 300 }}
+                variant="outlined"
+                value={groupName}
+                inputProps = {{maxLength : 30}}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  const cleaned = event.target.value.replace(/[^a-zA-Z0-9\s]$/g, '').trim();
+                  setGroupName(cleaned);
+                }}
+              />
+            </div>
+            <div class = 'm-5'>
+              <FormControl>
+                <InputLabel id="restaurant-select-label">Select Restaurant</InputLabel>
+                <Select
+                  sx={{ width: 300 }}
+                  label-id= "restaurant-select-label"
+                  label="Select Restaurant"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setSelectedRestaurant(event.target.value);
+                  }}
+                >
+                {restaurantData.map((restaurant) => (
+                  <MenuItem value={restaurant}>{restaurant.name}</MenuItem>
+                ))}
+                </Select>
+            </FormControl>
+          </div>
+
+          <div class = 'border m-5 w-75'>
+            {renderGuestEmails(guestEmails)}
+          </div>  
+
+          <div class = 'm-5'>
+            {renderDoneButton()}
+          </div>
         </div>
-        <div class = 'm-5'>
-          <FormControl>
-            <InputLabel id="restaurant-select-label">Select Restaurant</InputLabel>
-            <Select
-              sx={{ width: 300 }}
-              label-id= "restaurant-select-label"
-              label="Select Restaurant"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setSelectedRestaurant(event.target.value);
-              }}
-            >
-            {restaurantData.map((restaurant) => (
-              <MenuItem value={restaurant}>{restaurant.name}</MenuItem>
-            ))}
-            </Select>
-        </FormControl>
-      </div>
 
-      <div class = 'border m-5 w-75'>
-        {renderGuestEmails(guestEmails)}
-      </div>  
+        {menuData && (<div>
+          <Menu menuData= {menuData} />
+        </div>)}
 
-      <div class = 'm-5'>
-        {renderDoneButton()}
       </div>
 
       {isDone && renderFinished()}

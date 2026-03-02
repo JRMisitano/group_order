@@ -27,23 +27,13 @@ export default function Group() {
   
   useEffect(() => {
     if (orderData) {
-    fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMenuData(data);
-        console.log(data);
-        setLoadingMenu(false);
-      })
+      fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setMenuData(data);
+          setLoadingMenu(false);
+        })
     }
-
-/*
-   .then((data) => {
-        const valuesArray = Object.keys(data).map(key => {
-          data[key].id=key;
-          return data[key];
-        }); 
-*/
-
   }, [orderData])
 
   useEffect(() => {

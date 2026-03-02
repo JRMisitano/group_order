@@ -8,8 +8,8 @@ Object.keys(props.items).forEach(key => {
   items.push({...props.items[key], id: key})
 });
 
-console.log(items)
-console.log(props)
+//console.log(items)
+//console.log(props)
 
   return (
     <>
