@@ -52,7 +52,7 @@ export default function Order(props) {
   const taxes = getTax(subtotal, tax);
 
   if (totalCallback && userId) {
-    totalCallback(total, userId);
+    setTimeout(() => {totalCallback(total, userId)},0);
   }
 
   const formatter = new Intl.NumberFormat('en-US', {

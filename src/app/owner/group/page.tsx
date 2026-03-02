@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Order from '../../../components/Order';
+import Modal from '@mui/material/Modal';
 
 export default function Group() {
   interface Group {
@@ -16,17 +17,20 @@ export default function Group() {
   }
 
   const [isDone, setIsDone] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [groupData, setGroupData] = useState(null);
   const [menuData, setMenuData] = useState(null);
   const [groupOrders, setGroupOrders] = useState(null);
   const [totalMap, setTotalMap] = useState({});
+  const [readyToSubmit, setReadyToSubmit] = useState(false);
   const searchParams = useSearchParams();
   const ownerEmail = searchParams.get('email');
   const groupId = searchParams.get('group');
 
-
   const [isLoadingGroup, setLoadingGroup] = useState(true);
   const [isLoadingMenu, setLoadingMenu] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (groupData) {
@@ -39,34 +43,36 @@ export default function Group() {
     }
   }, [groupData])
 
-    const fetchGroupData = async () => {
-      const postData = {
-        "id": groupId, 
-        "email": ownerEmail, 
-      };
+  const fetchGroupData = async () => {
+    const postData = {
+      "id": groupId, 
+      "email": ownerEmail, 
+    };
 
-      try {
-        const response = await fetch('https://group-order.jr373.workers.dev/api/retrieve_orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-          body: JSON.stringify(postData),
-        });
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/retrieve_orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error: Status ${response.status}`);
-        }
-        const data = await response.json();
-        setGroupData(data);
-        setGroupOrders(data.orders);
-        setLoadingGroup(false)
-        console.log(data)
-      } catch (err) {
-        //setError(err.message); 
-        console.error('There was an error!', err);
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
       }
+      const data = await response.json();
+      setGroupData(data);
+      setGroupOrders(data.orders);
+      setIsClosed(!data.open)
+      setLoadingGroup(false);
+
+      console.log(data)
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
     }
+  }
 
   useEffect(() => {
     fetchGroupData();
@@ -74,42 +80,25 @@ export default function Group() {
   }, [])
 
   const totalCallback = (total, userId) => {
-    console.log(total, userId);
-    //const temp = totalPrice + total;
     totalMap[userId] = total;
-
     setTotalMap(totalMap);
-    console.log(totalMap)
-
-
-
-    //setTotalPrice(temp);
-
-    /*  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  });
-
-  const formattedTotal = formatter.format(total);*/
-
   }
 
   const getTotalPrice = (type) => {
-    let totalPrice = 0;
+    let total = 0;
 
     Object.keys(totalMap).map(key => {
-      totalPrice += totalMap[key];
+      total += totalMap[key];
     });
 
-    console.log(totalPrice);
     if (type === 'NUMBER'){
-      return totalPrice;
+      return total;
     }else if(type= 'STRING'){
       const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD'
       });
-      return formatter.format(totalPrice)
+      return formatter.format(total)
     }
   }
 
@@ -117,17 +106,65 @@ export default function Group() {
     fetchGroupData();
   }
 
-  const handleSumbit = () => {
-   
+  const handleSumbit = async () => {
+    setIsSubmitting(true);
+    const postData = {
+      "id": groupId, 
+      "email": ownerEmail, 
+    };
+
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+      setIsSubmitting(false);
+      setIsDone(true);
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
   }
 
-  const handleClose = () => {
-   
+  const handleReady = () => {
+    fetchGroupData();
+    setReadyToSubmit(true);
   }
 
-  const postDone = async () => {
+  const handleClose = async () => {
 
-  };
+    setIsClosing(true);
+    const postData = {
+      "id": groupId, 
+      "email": ownerEmail, 
+    };
+
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/close', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+      setIsClosed(true);
+      setIsClosing(false);
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  }
 
   const renderOrders = () => {
     const orders =[];
@@ -148,11 +185,37 @@ export default function Group() {
     return (orders)
   };
 
-  const renderFinished = () => {
+    const renderFinished = () => {
+    return (
+      <Modal
+        open={isDone}
+      >
+        <div class = "flex h-screen w-full justify-center"> 
+          <div class = "m-25">
+            <p class = "text-3xl"> Your Group Order has been Submitted</p> 
+          </div>
+        </div>
+      </Modal>
+    )
+  }
 
+  const renderClosed = () => {
+    return (
+      <Modal
+        open={isClosed}
+      >
+        <div class = "flex h-screen w-full justify-center"> 
+          <div class = "m-25">
+            <p class = "text-3xl"> This order is closed</p> 
+          </div>
+        </div>
+      </Modal>
+    )
   };
 
   if (isLoadingGroup || isLoadingMenu) return <p class = 'text-3xl'>Loading...</p>
+  if (isSubmitting) return <p class = 'text-3xl'>Submitting...</p>
+  if (isClosing) return <p class = 'text-3xl'>Closing...</p>
 
   return (
     <>
@@ -168,18 +231,36 @@ export default function Group() {
               <p class = 'text-xl, m-2' key = {email}> {email}</p>
             ))}
           </div>
-            {getTotalPrice('NUMBER') > 0 ? (<div class = 'flex justify-between text-2xl m-5'>
-            <p>Total: </p>
-            <p>{getTotalPrice('STRING')}</p>
-          </div>) : (<></>)}
-          <div class = 'm-5'>
-            <Button 
-              onClick = {handleSumbit} 
-              variant = 'outlined'
-            >
-              Sumbit Order 
-            </Button>
-            <div class = 'm-5' />
+           
+            {readyToSubmit ? (
+              <>
+                <div class = 'flex justify-between text-2xl m-5'>
+                  <p>Total: </p>
+                  <p>{getTotalPrice('STRING')}</p>
+                </div>
+                <div class = 'm-5'>  
+
+                <Button 
+                  onClick = {handleSumbit} 
+                  variant = 'outlined'
+                >
+                Sumbit Order 
+              </Button>
+            </div>
+          </>
+          ) : (
+            <>   
+              <div class = 'm-5'>  
+                <Button 
+                  onClick = {handleReady} 
+                  variant = 'outlined'
+                >
+                Ready to Submit 
+              </Button>
+            </div>
+          </>)}
+
+          <div class = 'm-5' />
             <Button 
               onClick = {handleClose} 
               variant = 'outlined'
@@ -187,7 +268,7 @@ export default function Group() {
               Close Without Submitting
             </Button>
           </div>
-        </div>  
+      
 
         <div> 
           <div class = 'flex justify-between m-5 text-2xl'> 
@@ -205,8 +286,9 @@ export default function Group() {
 
 
       </div>
+      {renderClosed()}
       {renderFinished()}
-
+      
     </>
   );
 }
