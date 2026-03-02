@@ -3,4 +3,6 @@
 body {
   background: #102030;
   font-family: Arial, Helvetica, sans-serif;
+  color: #BBB;
+  border-color: #BBB;
 }

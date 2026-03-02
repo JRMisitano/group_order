@@ -3,20 +3,21 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Menu from '../../components/Menu';
+import Order from '../../components/Order';
 
 export default function Group() {
   interface Order {
     name: string;
     email: string;
-    restaurant: string;
-    order: array;
+    restaurant: Object;
+    order: Object;
     open: boolean;
   }
 
   const [isDone, setIsDone] = useState(false);
-  const [orderData, setOrderData] = useState(null)
+  const [orderData, setOrderData] = useState(null);
   const [menuData, setMenuData] = useState(null);
-  const [orderOpen, setOrderOpen] = useState(null);
+  const [groupOpen, setGroupOpen] = useState(null);
 
   const searchParams = useSearchParams();
   const guestEmail = searchParams.get('email');
@@ -25,6 +26,8 @@ export default function Group() {
   const [isLoadingOrder, setLoadingOrder] = useState(true);
   const [isLoadingMenu, setLoadingMenu] = useState(true);
   
+  const [guestOrder, setGuestOrder] = useState({})
+
   useEffect(() => {
     if (orderData) {
       fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
@@ -55,10 +58,10 @@ export default function Group() {
         if (!response.ok) {
           throw new Error(`HTTP error: Status ${response.status}`);
         }
-        const data = await response.json();
+        const data: Order = await response.json();
         setOrderData(data);
         setLoadingOrder(false);
-        setOrderOpen(data.open)
+        setGroupOpen(data.open);
         console.log(data);
       } catch (err) {
         //setError(err.message); 
@@ -70,6 +73,8 @@ export default function Group() {
 
   }, [])
 
+
+
   const handleSumbit = () => {
    
   }
@@ -77,6 +82,39 @@ export default function Group() {
   const postDone = async () => {
 
   };
+
+  const addItemCallback = (item, type) => {
+    //console.log(item, type)
+    const id = item.id;
+
+
+    if(guestOrder[id] == null && type === 'ADD'){
+      guestOrder[id] = 0;
+    }
+
+    switch (type) {
+      case 'ADD':
+          if (guestOrder[id] < 20){
+            guestOrder[id]++;
+          }
+        break;
+      case 'SUBTRACT':
+          if (guestOrder[id] >0){
+            guestOrder[id]--;
+          }
+        break;
+    }
+
+    if (guestOrder[id]===0){
+      delete guestOrder[id];
+    }
+
+    setGuestOrder({...guestOrder});
+    //console.log (guestOrder)
+  }
+
+
+
 
   const renderFinished = () => {
     /*return (
@@ -99,8 +137,8 @@ export default function Group() {
     )*/
   }
 
-  if (isLoadingOrder || isLoadingMenu) return <p class= ' m-5 text-3xl'>Loading...</p>
-  if (!orderOpen) return <p class= 'm-5 text-3xl'>Sorry {orderData.email}, the ordering Window has Closed</p>
+  if (isLoadingOrder || isLoadingMenu) return <p class= 'm-5 text-3xl'>Loading...</p>
+  if (!groupOpen) return <p class= 'm-5 text-3xl'>Sorry {orderData.email}, the ordering Window has Closed</p>
   return (
     <>
       <div class = 'flex'>
@@ -109,7 +147,12 @@ export default function Group() {
           <p class = 'text-3xl m-5'> Group {orderData.name}</p>
           <p class = 'text-2xl m-5' > {orderData.restaurant.name}</p>
           <p class = 'text-xl m-5'> {orderData.email} </p>
-          
+          <Order 
+            order = {guestOrder} 
+            menu = {menuData} 
+            tax = {.07}
+            title = 'Your Order'
+          />
           <div class = 'm-5'>
             <Button 
               onClick = {handleSumbit} 
@@ -121,7 +164,7 @@ export default function Group() {
         </div>
 
          <div>
-          <Menu menuData= {menuData} />
+          <Menu menuData= {menuData} addItemCallback = {addItemCallback}/>
         </div>
 
       </div>

@@ -181,7 +181,7 @@ export default function Owner() {
   }
 
 
-  if (isLoadingRestaurant) return <p>Loading...</p>
+  if (isLoadingRestaurant) return <p class = 'm-5 text-3xl'>Loading...</p>
 
   return (
     <>
@@ -240,9 +240,7 @@ export default function Owner() {
           </div>
         </div>
 
-        {menuData && (<div>
-          <Menu menuData= {menuData} />
-        </div>)}
+        {menuData && <Menu menuData= {menuData} />}
 
       </div>
 
