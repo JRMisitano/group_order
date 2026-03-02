@@ -141,7 +141,7 @@ export default function Owner() {
                 value = {emails[i]}
                 inputProps = {{maxLength : 255}}
                 onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
-                  let temp = guestEmails;
+                  const temp = guestEmails;
                   temp[i] = event.target.value;
                   setGuestEmails([...temp]);
                 }
@@ -166,7 +166,7 @@ export default function Owner() {
              <p>{links.owner}</p> 
              <p>Guest Links</p>
               {links.guests.map((guest) => (
-              <p>{guest}</p>
+              <p key= 'guest'>{guest}</p>
             ))}
           </div> 
         </div>
@@ -219,7 +219,7 @@ export default function Owner() {
                   }}
                 >
                 {restaurantData.map((restaurant) => (
-                  <MenuItem value={restaurant}>{restaurant.name}</MenuItem>
+                    <MenuItem key= {restaurant.name} value={restaurant}>{restaurant.name}</MenuItem>
                 ))}
                 </Select>
             </FormControl>

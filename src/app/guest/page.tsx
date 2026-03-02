@@ -10,8 +10,8 @@ export default function Group() {
   interface Order {
     name: string;
     email: string;
-    restaurant: Object;
-    order: Object;
+    restaurant: object;
+    order: object;
     open: boolean;
   }
 
@@ -30,7 +30,7 @@ export default function Group() {
   const [guestOrder, setGuestOrder] = useState({})
 
   useEffect(() => {
-    if (orderData) {
+    if (orderData && orderData.restaurant) {
       fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
         .then((res) => res.json())
         .then((data) => {
