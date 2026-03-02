@@ -5,7 +5,7 @@
   "proxy": "http://localhost:3000/",
   "scripts": {
     "dev": "next dev",
-    "lint": "eslint --fix"
+    "lint": "eslint"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
