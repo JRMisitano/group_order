@@ -7,10 +7,17 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
 
 export default function Owner() {
-  const handleDone = () => {
-    postGroup();
+  interface Group {
+    name: string;
+    owner: string;
+    emails: string[];
+    restaurant: string;
+    orders: object;
+    open: boolean;
+    id: string;
   }
 
   const [isDone, setIsDone] = useState(false);
@@ -21,8 +28,10 @@ export default function Owner() {
 
   const [restaurantData, setRestaurantData] = useState(null);
   const [menuData, setMenuData] = useState(null);
+  const [groupData, setGroupData] = useState(null)
+  const [links, setLinks] = useState(null)
 
-  const [isLoadingMenu, setLoadingMenu] = useState(true);
+  const [isLoadingRestaurant, setLoadingRestaurant] = useState(true);
 
   useEffect(() => {
     fetch('https://group-order.jr373.workers.dev/api/restaurants')
@@ -33,57 +42,34 @@ export default function Owner() {
           return data[key];
         }); 
         setRestaurantData(valuesArray);
-        setLoadingMenu(false);
+        setLoadingRestaurant(false);
+/////////////////////
+     // setIsDone(true);
+      //completeGroup({"name":"dsdsf","owner":"jr373@hotmail.com","emails":["some@email.com","more@email.com"],"restaurant":{"name":"Sara's Subs","menu":"menu_1","id":"restaurant_1"},"orders":{},"open":true,"id":"dsdsf 1772403156232"})
+//////////////////
       })
   }, [])
 
-  const renderDoneButton = () => {
-    const readyToSubmit = 
-      !!groupName && 
-      !!ownerEmail && 
-      !!selectedRestaurant &&
-      !!guestEmails.length &&
-      !isDone;
-    console.log(readyToSubmit)
-
-    //console.log(groupName , ownerEmail , selectedRestaurant , guestEmails.length , !isDone)
-    return (
-      <Button 
-        onClick = {handleDone} 
-        variant = 'outlined'
-        disabled = {!readyToSubmit}
-      >
-        Done 
-      </Button>
-      )
+  const handleDone = () => {
+    postGroup();
   }
 
-  const renderGuestEmails = (emails) => {
-    const emailFields = [];
-    for (let i = 0; i < 3; i++) {
-      if( i <= emails.length){
-        emailFields.push(
-           <div class = "m-5">
-            <TextField
-                label="Enter a Guest's Email" 
-                sx = {{width: 260}}
-                variant = "outlined"
-                value = {emails[i]}
-                inputProps = {{maxLength : 255}}
-                key = {i}
-                onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
-                  let temp = guestEmails;
-                  temp[i] = event.target.value;
-                  setGuestEmails([...temp]);
-                }
-              }
-            />
-          </div>
-        );
-      }
-    }
-    return emailFields;
-  };
+  const completeGroup = (data: Group) => {
+    setLinks(generateLinks(data));
+    setGroupData(data);
+  }
+
+  const generateLinks = (group: Group) => {
+    const host = window.location.host; 
+    const guests = [];
+    const owner = `http://${host}/owner/group?email=${encodeURI(group.owner)}&group=${encodeURI(group.id)}`
+   
+    group.emails.forEach((email) => {
+        guests.push(`http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(group.id)}`);
+    });
+
+    return {owner, guests};
+  }
 
   const postGroup = async () => {
     //setError(null); 
@@ -107,32 +93,85 @@ export default function Owner() {
         throw new Error(`HTTP error: Status ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       setIsDone(true);
+      completeGroup(data);
     } catch (err) {
       //setError(err.message); 
       console.error('There was an error!', err);
     }
   };
 
-  /*useEffect(() => {
-    fetch(`https://group-order.jr373.workers.dev/api/menu?value=${selectedRestaurant.menu}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const valuesArray = Object.keys(data).map(key => {
-          data[key].id=key;
-          return data[key];
-        }); 
-        
-        setLoadingMenu(false);
-      })
-  }, [selectedRestaurant])*/
+  const renderDoneButton = () => {
+    const readyToSubmit = 
+      !!groupName && 
+      !!ownerEmail && 
+      !!selectedRestaurant &&
+      !!guestEmails.length &&
+      !isDone;
+    
+    return (
+      <Button 
+        onClick = {handleDone} 
+        variant = 'outlined'
+        disabled = {!readyToSubmit}
+      >
+        Done 
+      </Button>
+      )
+  }
 
-  if (isLoadingMenu) return <p>Loading...</p>
+  const renderGuestEmails = (emails: string[]) => {
+    const emailFields = [];
+    for (let i = 0; i < 3; i++) {
+      if(i <= emails.length){
+        emailFields.push(
+           <div class = "m-5" key = {i}>
+            <TextField
+                label="Enter a Guest's Email" 
+                sx = {{width: 260}}
+                variant = "outlined"
+                value = {emails[i]}
+                inputProps = {{maxLength : 255}}
+                onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
+                  let temp = guestEmails;
+                  temp[i] = event.target.value;
+                  setGuestEmails([...temp]);
+                }
+              }
+            />
+          </div>
+        );
+      }
+    }
+    return emailFields;
+  };
+
+  const renderFinished = () =>{
+    return (
+      <Modal
+        open={isDone}
+      >
+        <div class = "flex h-screen w-full justify-center"> 
+          <div class = "m-25"> 
+            <p>Group {groupData.name} Created</p> 
+             <p>Owner Link</p> 
+             <p>{links.owner}</p> 
+             <p>Guest Links</p>
+              {links.guests.map((guest) => (
+              <p>{guest}</p>
+            ))}
+          </div> 
+        </div>
+      </Modal>
+    )
+  }
+
+
+  if (isLoadingRestaurant) return <p>Loading...</p>
 
   return (
     <>
-      <div class = 'text-3xl m-5'> Create a group </div>
+      <p class = 'text-3xl m-5'> Create a group </p>
       
         <div class = 'm-5'>
           <TextField
@@ -168,7 +207,7 @@ export default function Owner() {
               label="Select Restaurant"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setSelectedRestaurant(event.target.value);
-            }}
+              }}
             >
             {restaurantData.map((restaurant) => (
               <MenuItem value={restaurant}>{restaurant.name}</MenuItem>
@@ -184,6 +223,9 @@ export default function Owner() {
       <div class = 'm-5'>
         {renderDoneButton()}
       </div>
+
+      {isDone && renderFinished()}
+
     </>
   );
 }
