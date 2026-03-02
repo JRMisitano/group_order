@@ -29,8 +29,8 @@ export default function Owner() {
 
   const [restaurantData, setRestaurantData] = useState(null);
   const [menuData, setMenuData] = useState(null);
-  const [groupData, setGroupData] = useState(null)
-  const [links, setLinks] = useState(null)
+  const [groupData, setGroupData] = useState(null);
+  const [links, setLinks] = useState(null);
 
   const [isLoadingRestaurant, setLoadingRestaurant] = useState(true);
 
@@ -48,17 +48,11 @@ export default function Owner() {
   }, [])
 
   useEffect(() => {
-    console.log(selectedRestaurant)
     if (selectedRestaurant) {
       fetch(`https://group-order.jr373.workers.dev/api/menu?value=${selectedRestaurant.menu}`)
         .then((res) => res.json())
         .then((data) => {
           setMenuData(data);
-          console.log(data);
-  /////////////////////
-       // setIsDone(true);
-        //completeGroup({"name":"dsdsf","owner":"jr373@hotmail.com","emails":["some@email.com","more@email.com"],"restaurant":{"name":"Sara's Subs","menu":"menu_1","id":"restaurant_1"},"orders":{},"open":true,"id":"dsdsf 1772403156232"})
-  //////////////////
       })
     }
   }, [selectedRestaurant])

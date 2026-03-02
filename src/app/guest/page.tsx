@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Menu from '../../components/Menu';
 import Order from '../../components/Order';
+import Modal from '@mui/material/Modal';
 
 export default function Group() {
   interface Order {
@@ -62,7 +63,7 @@ export default function Group() {
         setOrderData(data);
         setLoadingOrder(false);
         setGroupOpen(data.open);
-        console.log(data);
+        setGuestOrder(data.order);
       } catch (err) {
         //setError(err.message); 
         console.error('There was an error!', err);
@@ -73,20 +74,47 @@ export default function Group() {
 
   }, [])
 
-
-
   const handleSumbit = () => {
-   
+    setLoadingOrder(true);
+    postOrder();
   }
+
+  const postOrder = async () => {
+    //setError(null); 
+
+    const postData = {
+      "email": guestEmail, 
+      "id": groupId,
+      "order": guestOrder
+    }; 
+
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/add_order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+      setLoadingOrder(false);
+      setIsDone(true);
+
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  };
 
   const postDone = async () => {
 
   };
 
   const addItemCallback = (item, type) => {
-    //console.log(item, type)
     const id = item.id;
-
 
     if(guestOrder[id] == null && type === 'ADD'){
       guestOrder[id] = 0;
@@ -110,33 +138,24 @@ export default function Group() {
     }
 
     setGuestOrder({...guestOrder});
-    //console.log (guestOrder)
   }
-
-
-
 
   const renderFinished = () => {
-    /*return (
+    return (
       <Modal
         open={isDone}
-        onClose={handleModalClose} 
       >
         <div class = "flex h-screen w-full justify-center"> 
-          <div class = "m-25"> 
-            <div>Group {groupData.name} Created</div> 
-           <div>Owner Link</div> 
-           <div>{links.owner}</div> 
-           <div>Guest Links</div>
-            {links.guests.map((guest) => (
-              <div>{guest}</div>
-            ))}
-          </div> 
+          <div class = "m-25">
+            <p class = "text-3xl"> Your Order has been Submitted</p> 
+            <p class = "text-xl"> Your may still change it by reloading the this page</p> 
+          </div>
         </div>
       </Modal>
-    )*/
+    )
   }
 
+  if (isDone) return (renderFinished());
   if (isLoadingOrder || isLoadingMenu) return <p class= 'm-5 text-3xl'>Loading...</p>
   if (!groupOpen) return <p class= 'm-5 text-3xl'>Sorry {orderData.email}, the ordering Window has Closed</p>
   return (

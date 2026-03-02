@@ -5,6 +5,8 @@ export default function Order(props) {
   const order = props.order;
   const tax = props.tax
   const title = props.title;
+  const totalCallback = props.totalCallback;
+  const userId = props.userId;
 
   const menu = {}; 
 
@@ -25,7 +27,7 @@ export default function Order(props) {
   const getTotal = (order, menu, taxRate) => {
     const subtotal = getSubtotal(order, menu);
     const tax = getTax(subtotal, taxRate);
-    console.log(subtotal+tax)
+
     return subtotal+tax;
   }
 
@@ -38,18 +40,20 @@ export default function Order(props) {
       subTotal += number * price;
     });
 
-    console.log(subTotal)
     return subTotal;
   }
 
   const getTax = (total, taxRate) => {
-    console.log(total*taxRate)
     return total*taxRate;
   }
 
   const total = getTotal(order, menu, tax);
   const subtotal = getSubtotal(order, menu);
   const taxes = getTax(subtotal, tax);
+
+  if (totalCallback && userId) {
+    totalCallback(total, userId);
+  }
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
