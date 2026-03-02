@@ -22,6 +22,7 @@ export default function Group() {
   const [menuData, setMenuData] = useState(null);
   const [groupOrders, setGroupOrders] = useState(null);
   const [totalMap, setTotalMap] = useState({});
+  const [TotalPrice, setTotalPrice] = useState(0);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const searchParams = useSearchParams();
   const ownerEmail = searchParams.get('email');
@@ -42,6 +43,12 @@ export default function Group() {
         })
     }
   }, [groupData])
+
+  useEffect(() => {
+    if (menuData) {
+      setTotalPrice(getTotalPrice("STRING"));
+    } 
+  }, [menuData])
 
   const fetchGroupData = async () => {
     const postData = {
@@ -66,8 +73,6 @@ export default function Group() {
       setGroupOrders(data.orders);
       setIsClosed(!data.open)
       setLoadingGroup(false);
-
-      console.log(data)
     } catch (err) {
       //setError(err.message); 
       console.error('There was an error!', err);
@@ -219,7 +224,7 @@ export default function Group() {
 
   return (
     <>
-      <div class = 'flex'>
+      <div class = 'flex m-5'>
         <div>
           <p class = 'text-3xl m-5'> Group {groupData.name}</p>
           <p class = 'text-xl m-5'> Reload to update </p>
@@ -231,8 +236,7 @@ export default function Group() {
               <p class = 'text-xl, m-2' key = {email}> {email}</p>
             ))}
           </div>
-           
-            {readyToSubmit ? (
+            {getTotalPrice('NUMBER')!==0 ? (
               <>
                 <div class = 'flex justify-between text-2xl m-5'>
                   <p>Total: </p>
@@ -247,19 +251,7 @@ export default function Group() {
                 Sumbit Order 
               </Button>
             </div>
-          </>
-          ) : (
-            <>   
-              <div class = 'm-5'>  
-                <Button 
-                  onClick = {handleReady} 
-                  variant = 'outlined'
-                >
-                Ready to Submit 
-              </Button>
-            </div>
-          </>)}
-
+          </>) : (<></>)}
           <div class = 'm-5' />
             <Button 
               onClick = {handleClose} 
@@ -288,7 +280,6 @@ export default function Group() {
       </div>
       {renderClosed()}
       {renderFinished()}
-      
     </>
   );
 }
