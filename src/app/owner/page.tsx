@@ -160,7 +160,7 @@ export default function Owner() {
         open={isDone}
       >
         <div class = "flex h-screen w-full justify-center"> 
-          <div class = "m-25"> 
+          <div class = "m-25 text-2xl"> 
             <p>Group {groupData.name} Created</p> 
              <p>Owner Link</p> 
              <p>{links.owner}</p> 

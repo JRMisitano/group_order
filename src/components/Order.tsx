@@ -68,7 +68,7 @@ export default function Order(props) {
 
   return (
     <div class = 'm-5 border'>
-      <p class = 'text-2xl m-2 border-b'>{title}</p>
+      <p class = 'text-xl m-2 border-b'>{title}</p>
       <div class = 'border-b'> {renderOrderItems()}</div>
       <div class ='flex justify-between'>
         <p>Subtotal:</p>
@@ -78,7 +78,7 @@ export default function Order(props) {
         <p>Tax:</p>
         <p>{formattedTax}</p>
       </div>
-      <div class ='text-2xl flex justify-between'>
+      <div class ='text-xl flex justify-between'>
         <p>Total:</p>
         <p>{formattedTotal}</p>
       </div>

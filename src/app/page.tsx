@@ -9,9 +9,6 @@ export default function Home() {
         <NextLink href = '/owner'>
           <Button variant = 'outlined'> Create a Group </Button>
         </NextLink>
-        <NextLink href = '/guest'>
-          <Button variant = 'outlined'> Add an Order </Button>
-        </NextLink> 
     </>
   );
 }

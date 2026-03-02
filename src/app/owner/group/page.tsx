@@ -261,10 +261,11 @@ export default function Group() {
             </Button>
           </div>
       
+        
+        <div>
+          <div class = 'flex justify-between m-5 text-2xl' > 
+            {getTotalPrice("NUMBER")!==0 ? <p>Orders</p> : <p class = "w-50">No orders yet</p>}
 
-        <div> 
-          <div class = 'flex justify-between m-5 text-2xl'> 
-            <p>Orders</p>
             <Button 
               onClick = {handleReload} 
               variant = 'outlined'
