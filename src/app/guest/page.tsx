@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
+import Menu from '../../components/Menu';
 
 export default function Group() {
   interface Order {
@@ -34,6 +35,14 @@ export default function Group() {
         setLoadingMenu(false);
       })
     }
+
+/*
+   .then((data) => {
+        const valuesArray = Object.keys(data).map(key => {
+          data[key].id=key;
+          return data[key];
+        }); 
+*/
 
   }, [orderData])
 
@@ -122,18 +131,7 @@ export default function Group() {
         </div>
 
          <div>
-          <p class = 'text-3xl m-5'> Group {orderData.name}</p>
-          <p class = 'text-2xl m-5' > {orderData.restaurant.name}</p>
-          <p class = 'text-xl m-5'> {orderData.email} </p>
-          
-          <div class = 'm-5'>
-            <Button 
-              onClick = {handleSumbit} 
-              variant = 'outlined'
-            >
-              Sumbit Order 
-            </Button>
-          </div>
+          <Menu menuData= {menuData} />
         </div>
 
       </div>
