@@ -12,7 +12,8 @@ import {
   fetchOrders 
 } from '../../../services';
 
-import Modal from '@mui/material/Modal';
+//import Modal from '@mui/material/Modal';
+import InfoModal from '../../../components/InfoModal';
 
 export default function Group() {
   interface Group {
@@ -66,15 +67,16 @@ export default function Group() {
   }, [groupData]);
 
   useEffect(() => {
-    (async () => {
+    processOrders();
+  }, [])
+
+   const processOrders = async() => {
       const data = await fetchOrders(fetchOrdersPostData);
       setGroupData(data);
       setGroupOrders(data.orders);
       setIsClosed(!data.open)
       setLoadingGroup(false);
-      })();
-
-  }, [])
+   }
 
   const getOrdersTotalPrice = () => {
     let total = 0;
@@ -85,7 +87,7 @@ export default function Group() {
   }
 
   const handleReload = () => {
-    fetchOrders(fetchOrdersPostData);
+    processOrders();
   }
 
   const handleSumbit = async () => {
@@ -167,29 +169,19 @@ export default function Group() {
 
   const renderFinished = () => {
     return (
-      <Modal
-        open={isDone}
-      >
-        <div class = "flex h-screen w-full justify-center"> 
-          <div class = "m-25">
-            <p class = "text-3xl"> Your Group Order has been Submitted</p> 
-          </div>
-        </div>
-      </Modal>
+      <InfoModal 
+        open = {!isDone} 
+        text = "Your Group Order has been Submitted"
+      />
     )
   }
 
   const renderClosed = () => {
     return (
-      <Modal
-        open={isClosed}
-      >
-        <div class = "flex h-screen w-full justify-center"> 
-          <div class = "m-25">
-            <p class = "text-3xl"> This order is closed</p> 
-          </div>
-        </div>
-      </Modal>
+      <InfoModal 
+        open = {isClosed} 
+        text = "This order is closed"
+      />
     )
   };
 
@@ -236,7 +228,6 @@ export default function Group() {
             </Button>
           </div>
       
-        
         <div>
           <div class = 'flex justify-between m-5 text-2xl' > 
             {totalPrice !==0 ? <p>Orders</p> : <p class = "w-50">No orders yet</p>}
@@ -252,8 +243,8 @@ export default function Group() {
           <div> {renderOrders()} </div>
         </div>
 
-
       </div>
+
       {renderClosed()}
       {renderFinished()}
     </>

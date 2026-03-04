@@ -175,29 +175,29 @@ export default {
         //TODO: getMenu Function
         //TODO: Menus in R2
         let menu = {items:{mains:{},sides:{},drinks:{}}};
-        let sides = {side_1: {name: 'Chips', price: 1.99, priceString: "$1.99"}}
-        let drinks = {drink_1:{name: 'Soda', price: 1.99, priceString: "$1.99"}}
+        let sides = {side_1: {name: 'Chips', price: 1.99}}
+        let drinks = {drink_1:{name: 'Soda', price: 1.99}}
         switch (menuParam) {
           case "menu_1":
-            menu.items.mains ={main_1: {name: 'Salami Sammich', price: 6.99, priceString: "$6.99"}, main_2:{name:'Big \'ol Veggie', price: 5.99, priceString: '$5.99' }};
+            menu.items.mains ={main_1: {name: 'Salami Sammich', price: 6.99}, main_2:{name:'Big \'ol Veggie', price: 5.99}};
             menu.items.sides = sides;
-            menu.items.sides['side_2']={name: 'Cookie', price: 2, priceString: "$2.00"}
+            menu.items.sides['side_2']={name: 'Cookie', price: 2}
             menu.items.drinks = drinks;
-            menu.items.drinks['drink_2']={name: 'Ginger Ale', price: 1.99, priceString: "$1.99"}
+            menu.items.drinks['drink_2']={name: 'Ginger Ale', price: 1.99}
             break;
           case "menu_2":
-            menu.items.mains ={main_1: {name: 'Giant Chicken Salad', price: 6.99, priceString: "$6.99"}, main_2:{name:'Mega Meatball', price: 7.99, priceString: '$7.99' }};
+            menu.items.mains ={main_1: {name: 'Giant Chicken Salad', price: 6.99}, main_2:{name:'Mega Meatball', price: 7.99}};
             menu.items.sides = sides;
-            menu.items.sides['side_2']={name: 'Onion Rings', price: 4.5, priceString: "$4.50"}
+            menu.items.sides['side_2']={name: 'Onion Rings', price: 4.5}
             menu.items.drinks = drinks;
-            menu.items.drinks['drink_2']={name: 'Fancy Root Beer', price: 1.99, priceString: "$3.00"}
+            menu.items.drinks['drink_2']={name: 'Fancy Root Beer', price: 1.99}
             break;
           case "menu_3":
-            menu.items.mains ={main_1: {name: 'Hearty Cheesesteak ', price: 7.5, priceString: "$7.50"}, main_2:{name:'Ham and Swiss', price: 4.99, priceString: '$4.99' }};
+            menu.items.mains ={main_1: {name: 'Hearty Cheesesteak ', price: 7.5, }, main_2:{name:'Ham and Swiss', price: 4.99}};
             menu.items.sides = sides;
-            menu.items.sides['side_2']={name: 'Salad', price: 3.99, priceString: "$3.99"}
+            menu.items.sides['side_2']={name: 'Salad', price: 3.99}
             menu.items.drinks = drinks;
-            menu.items.drinks['drink_2']={name: 'Orange Soda', price: 1.99, priceString: "$1.99"}
+            menu.items.drinks['drink_2']={name: 'Orange Soda', price: 1.99}
             break;
           default: 
             return new Response("400, bad request", { status: 400 });

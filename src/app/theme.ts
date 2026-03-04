@@ -12,6 +12,15 @@ const theme = createTheme({
       main: '#2ec5d3',
     },
   },
+  components: {
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+        },
+      },
+    },
+  },
 });
 
 export default theme;

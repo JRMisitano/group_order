@@ -142,3 +142,23 @@ export const fetchOrder = async (postData) => {
     }
   };
 
+  export const fetchCreateGroup = async (postData) => {
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+      const data = await response.json();
+        return data;
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  }

@@ -9,6 +9,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
 import Menu from '../../components/Menu';
+import {fetchCreateGroup} from '../../services';
 
 export default function Owner() {
   interface Group {
@@ -57,9 +58,8 @@ export default function Owner() {
     }
   }, [selectedRestaurant])
 
-
   const handleDone = () => {
-    postGroup();
+    createGroup();
   }
 
   const completeGroup = (data: Group) => {
@@ -78,8 +78,7 @@ export default function Owner() {
     }
   };
 
-  const postGroup = async () => {
-    //setError(null); 
+  const createGroup = async () => {
     const postData = {
       "name": groupName, 
       "owner": ownerEmail,
@@ -87,25 +86,10 @@ export default function Owner() {
       "restaurant": selectedRestaurant
     }; 
 
-    try {
-      const response = await fetch('https://group-order.jr373.workers.dev/api/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(postData),
-      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error: Status ${response.status}`);
-      }
-      const data = await response.json();
-      setIsDone(true);
-      completeGroup(data);
-    } catch (err) {
-      //setError(err.message); 
-      console.error('There was an error!', err);
-    }
+    const data = await fetchCreateGroup(postData);
+    setIsDone(true);
+    completeGroup(data);
   };
 
   const renderDoneButton = () => {
@@ -160,12 +144,15 @@ export default function Owner() {
       >
         <div class = "flex h-screen w-full justify-center"> 
           <div class = "m-25 text-2xl"> 
-            <p>Group {groupData.name} Created</p> 
+              <p>Group {groupData.name} Created</p> 
+              <p class = "text-xl">
+                In a completed app these links would be emailed to the owner and participants. Instead they are provided as clickable links here.
+              </p>
               <p>Owner Link</p> 
-              <p>{generateLink("OWNER", groupData.owner)}</p> 
+              <p class = "text-xl">{generateLink("OWNER", groupData.owner)}</p> 
               <p>Guest Links</p>
                 {groupData.emails.map((guest) => (
-              <p key= 'guest'>{generateLink("GUEST", guest)}</p>
+              <p class = "text-xl" key= {guest}>{generateLink("GUEST", guest)}</p>
             ))}
           </div> 
         </div>

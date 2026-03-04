@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Menu from '../../components/Menu';
 import Order from '../../components/Order';
-import Modal from '@mui/material/Modal';
+import InfoModal from '../../components/InfoModal';
 import { 
   getTaxRate,
   getTotalFromOrder, 
@@ -113,16 +113,11 @@ export default function Group() {
 
   const renderFinished = () => {
     return (
-      <Modal
-        open={isDone}
-      >
-        <div class = "flex h-screen w-full justify-center"> 
-          <div class = "m-25">
-            <p class = "text-3xl"> Your Order has been Submitted</p> 
-            <p class = "text-xl"> Your may still change it by reloading the this page</p> 
-          </div>
-        </div>
-      </Modal>
+      <InfoModal 
+        open = {isDone} 
+        text = "Your Order has been Submitted"
+        subtext = "You may still change it by reloading the this page"
+      />
     )
   }
 
