@@ -12,10 +12,10 @@ import {
   fetchOrders 
 } from '../../../services';
 
-//import Modal from '@mui/material/Modal';
 import InfoModal from '../../../components/InfoModal';
 
 export default function Group() {
+
   interface Group {
     name: string;
     owner: string;
@@ -170,7 +170,7 @@ export default function Group() {
   const renderFinished = () => {
     return (
       <InfoModal 
-        open = {!isDone} 
+        open = {isDone} 
         text = "Your Group Order has been Submitted"
       />
     )
