@@ -5,6 +5,16 @@ import Button from '@mui/material/Button';
 import Menu from '../../components/Menu';
 import Order from '../../components/Order';
 import Modal from '@mui/material/Modal';
+import { 
+  getTaxRate,
+  getTotalFromOrder, 
+  floatToDollars, 
+  flattenMenu,
+  fetchMenu,
+  fetchOrder,
+  fetchAddOrder 
+} from '../../services';
+
 
 export default function Group() {
   interface Order {
@@ -29,92 +39,49 @@ export default function Group() {
   
   const [guestOrder, setGuestOrder] = useState({})
 
-  const taxRate =.07;
+  const taxRate =getTaxRate();
+
+  const basePostData = {
+      "id": groupId, 
+      "email": guestEmail, 
+  };
 
   useEffect(() => {
-    if (orderData && orderData.restaurant) {
-      fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setMenuData(data);
-          setLoadingMenu(false);
-        })
+    if(orderData){
+      (async () => {
+        const data = await fetchMenu(orderData.restaurant.menu);
+        setMenuData(data);
+        setLoadingMenu(false);
+      })();
     }
   }, [orderData])
 
-  
-
   useEffect(() => {
-    const postData = {
-      "id": groupId, 
-      "email": guestEmail, 
-    };
-
-    const fetchGroupData = async () => {
-      try {
-        const response = await fetch('https://group-order.jr373.workers.dev/api/get_order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-          body: JSON.stringify(postData),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error: Status ${response.status}`);
-        }
-        const data: Order = await response.json();
-        setOrderData(data);
-        setLoadingOrder(false);
-        setGroupOpen(data.open);
-        setGuestOrder(data.order);
-      } catch (err) {
-        //setError(err.message); 
-        console.error('There was an error!', err);
-      }
-    }
-
-    fetchGroupData();
-
+    (async () => {
+      const data = await fetchOrder(basePostData);
+      setOrderData(data);
+      setLoadingOrder(false);
+      setGroupOpen(data.open);
+      setGuestOrder(data.order);
+      })();
   }, [])
 
   const handleSumbit = () => {
     setLoadingOrder(true);
-    postOrder();
+    addOrder();
   }
 
-  const postOrder = async () => {
-    //setError(null); 
-
-    const postData = {
-      "email": guestEmail, 
-      "id": groupId,
-      "order": guestOrder
+  const addOrder = async () => {
+    const postData = { 
+      ...basePostData, 
+      order: guestOrder
     }; 
 
-    try {
-      const response = await fetch('https://group-order.jr373.workers.dev/api/add_order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: Status ${response.status}`);
-      }
+    const success = await fetchAddOrder(postData)
+    if (success){
       setLoadingOrder(false);
       setIsDone(true);
-
-    } catch (err) {
-      //setError(err.message); 
-      console.error('There was an error!', err);
     }
-  };
-
-  const postDone = async () => {
-
   };
 
   const addItemCallback = (item, type) => {
@@ -131,13 +98,13 @@ export default function Group() {
           }
         break;
       case 'SUBTRACT':
-          if (guestOrder[id] >0){
+          if (guestOrder[id] > 0){
             guestOrder[id]--;
           }
         break;
     }
 
-    if (guestOrder[id]===0){
+    if (guestOrder[id]=== 0){
       delete guestOrder[id];
     }
 
@@ -159,7 +126,6 @@ export default function Group() {
     )
   }
 
-  if (isDone) return (renderFinished());
   if (isLoadingOrder || isLoadingMenu) return <p class= 'm-5 text-3xl'>Loading...</p>
   if (!groupOpen) return <p class= 'm-5 text-3xl'>Sorry {orderData.email}, the ordering Window has Closed</p>
   return (

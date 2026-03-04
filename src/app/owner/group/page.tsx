@@ -9,7 +9,7 @@ import {
   floatToDollars, 
   flattenMenu,
   fetchMenu,
-  fetchOrder 
+  fetchOrders 
 } from '../../../services';
 
 import Modal from '@mui/material/Modal';
@@ -35,6 +35,7 @@ export default function Group() {
   const [totalMap, setTotalMap] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
+  
   const searchParams = useSearchParams();
   const ownerEmail = searchParams.get('email'); //get from group?
   const groupId = searchParams.get('group'); //get from group?
@@ -44,6 +45,17 @@ export default function Group() {
   const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const fetchOrdersPostData = {
+      "id": groupId, 
+      "email": ownerEmail, 
+    };
+
+  useEffect(() => {
+    if (menuData && groupData) {
+      setTotalPrice(getOrdersTotalPrice());
+    }  
+  }, [menuData,groupData]);
+
   useEffect(() => {
     if (groupData) {
       (async () => {
@@ -51,23 +63,11 @@ export default function Group() {
         setLoadingMenu(false)
       })();
     }
-  }, [groupData])
+  }, [groupData]);
 
   useEffect(() => {
-    if (menuData && groupData) {
-      setTotalPrice(getOrdersTotalPrice());
-    }  
-  }, [menuData,groupData])
-
-  useEffect(() => {
-
-    const postData = {
-      "id": groupId, 
-      "email": ownerEmail, 
-    };
-
     (async () => {
-      const data = await fetchOrders(postData);
+      const data = await fetchOrders(fetchOrdersPostData);
       setGroupData(data);
       setGroupOrders(data.orders);
       setIsClosed(!data.open)
@@ -85,7 +85,7 @@ export default function Group() {
   }
 
   const handleReload = () => {
-    fetchGroupData();
+    fetchOrders(fetchOrdersPostData);
   }
 
   const handleSumbit = async () => {
@@ -165,7 +165,7 @@ export default function Group() {
     return (orders)
   };
 
-    const renderFinished = () => {
+  const renderFinished = () => {
     return (
       <Modal
         open={isDone}

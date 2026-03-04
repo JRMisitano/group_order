@@ -24,7 +24,7 @@ export default function Owner() {
   const [isDone, setIsDone] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
-  const [selectedRestaurant, setSelectedRestaurant] =useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState('');
   const [guestEmails, setGuestEmails] = useState([]);
 
   const [restaurantData, setRestaurantData] = useState(null);
@@ -63,29 +63,20 @@ export default function Owner() {
   }
 
   const completeGroup = (data: Group) => {
-    setLinks(generateLinks(data));
     setGroupData(data);
   }
 
-  const generateLinks = (group: Group) => {
+  const generateLink = (type, email) => {
     const host = window.location.host; 
-    const guests = [];
-    const owner = `http://${host}/owner/group?email=${encodeURI(group.owner)}&group=${encodeURI(group.id)}`
-   
-    /*const ownerLink = `http://${host}/owner/group?email=${encodeURI(group.owner)}&group=${encodeURI(group.id)}`;
-    owner = `<a href = "${ownerLink}" target = "_blank">${ownerLink}</a>`;
-
-    group.emails.forEach((email) => {
-        const guestLink = `http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(group.id)}`;
-        guests.push(`<a href = "${guestLink}" target = "_blank">${guestLink}</a>`);
-    });*/
-   
-    group.emails.forEach((email) => {
-        guests.push(`http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(group.id)}`);
-    });
-
-    return {owner, guests};
-  }
+    if (type === "OWNER"){
+      const url = `http://${host}/owner/group?email=${encodeURI(email)}&group=${encodeURI(groupData.id)}`;
+      return (<a href = {url} target = "_blank">{url}</a>);
+    }
+    if (type === "GUEST"){
+      const url = `http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(groupData.id)}`;
+      return (<a href = {url} target = "_blank">{url}</a>);
+    }
+  };
 
   const postGroup = async () => {
     //setError(null); 
@@ -146,7 +137,7 @@ export default function Owner() {
                 label="Enter a Guest's Email" 
                 sx = {{width: 260}}
                 variant = "outlined"
-                value = {emails[i]}
+                value = {emails[i] || ''}
                 inputProps = {{maxLength : 255}}
                 onChange = {(event: React.ChangeEvent<HTMLInputElement>) => {
                   const temp = guestEmails;
@@ -170,11 +161,11 @@ export default function Owner() {
         <div class = "flex h-screen w-full justify-center"> 
           <div class = "m-25 text-2xl"> 
             <p>Group {groupData.name} Created</p> 
-             <p>Owner Link</p> 
-             <p>{links.owner}</p> 
-             <p>Guest Links</p>
-              {links.guests.map((guest) => (
-              <p key= 'guest'>{guest}</p>
+              <p>Owner Link</p> 
+              <p>{generateLink("OWNER", groupData.owner)}</p> 
+              <p>Guest Links</p>
+                {groupData.emails.map((guest) => (
+              <p key= 'guest'>{generateLink("GUEST", guest)}</p>
             ))}
           </div> 
         </div>
@@ -182,8 +173,11 @@ export default function Owner() {
     )
   }
 
-
-  if (isLoadingRestaurant) return <p class = 'm-5 text-3xl'>Loading...</p>
+  if (isLoadingRestaurant) {return 
+    <>
+      <p className = 'm-5 text-3xl'>Loading...</p>
+    </>
+  }
 
   return (
     <>
@@ -222,6 +216,7 @@ export default function Owner() {
                   sx={{ width: 300 }}
                   label-id= "restaurant-select-label"
                   label="Select Restaurant"
+                  value = {selectedRestaurant}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     setSelectedRestaurant(event.target.value);
                   }}

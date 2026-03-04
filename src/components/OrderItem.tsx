@@ -3,7 +3,6 @@ import { floatToDollars } from '../services';
 export default function OrderItem(props) {
   const amount = props.amount;
   const info = props.info;
-
   const totalPrice = amount*info.price;
 
   return (

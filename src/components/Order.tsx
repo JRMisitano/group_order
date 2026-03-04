@@ -1,5 +1,9 @@
 import OrderItem from './OrderItem';
-import { getAllOrderCalculatons,  floatToDollars, flattenMenu } from '../services';
+import { 
+  getAllOrderCalculatons,  
+  floatToDollars, 
+  flattenMenu 
+} from '../services';
 
 export default function Order(props) {
   const rawMenu = props.menu.items;

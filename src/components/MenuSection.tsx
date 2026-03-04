@@ -11,7 +11,7 @@ export default function MenuSection(props) {
   return (
     <>
       <p class = 'text-xl p-1 pl-2'>
-      {props.title}
+        {props.title}
       </p>
 
       {items.map((item) => 
