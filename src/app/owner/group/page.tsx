@@ -3,6 +3,15 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Order from '../../../components/Order';
+import { 
+  getTaxRate,
+  getTotalFromOrder, 
+  floatToDollars, 
+  flattenMenu,
+  fetchMenu,
+  fetchOrder 
+} from '../../../services';
+
 import Modal from '@mui/material/Modal';
 
 export default function Group() {
@@ -16,17 +25,19 @@ export default function Group() {
     id: string;
   }
 
+  const taxRate = getTaxRate();
+
   const [isDone, setIsDone] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
   const [groupData, setGroupData] = useState(null);
   const [menuData, setMenuData] = useState(null);
   const [groupOrders, setGroupOrders] = useState(null);
   const [totalMap, setTotalMap] = useState({});
-  const [TotalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const searchParams = useSearchParams();
-  const ownerEmail = searchParams.get('email');
-  const groupId = searchParams.get('group');
+  const ownerEmail = searchParams.get('email'); //get from group?
+  const groupId = searchParams.get('group'); //get from group?
 
   const [isLoadingGroup, setLoadingGroup] = useState(true);
   const [isLoadingMenu, setLoadingMenu] = useState(true);
@@ -35,76 +46,42 @@ export default function Group() {
 
   useEffect(() => {
     if (groupData) {
-      fetch(`https://group-order.jr373.workers.dev/api/menu?value=${groupData.restaurant.menu}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setMenuData(data);
-          setLoadingMenu(false);
-        })
+      (async () => {
+        setMenuData(await fetchMenu(groupData.restaurant.menu));
+        setLoadingMenu(false)
+      })();
     }
   }, [groupData])
 
   useEffect(() => {
-    if (menuData) {
-      setTotalPrice(getTotalPrice("STRING"));
-    } 
-  }, [menuData])
+    if (menuData && groupData) {
+      setTotalPrice(getOrdersTotalPrice());
+    }  
+  }, [menuData,groupData])
 
-  const fetchGroupData = async () => {
+  useEffect(() => {
+
     const postData = {
       "id": groupId, 
       "email": ownerEmail, 
     };
 
-    try {
-      const response = await fetch('https://group-order.jr373.workers.dev/api/retrieve_orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: Status ${response.status}`);
-      }
-      const data = await response.json();
+    (async () => {
+      const data = await fetchOrders(postData);
       setGroupData(data);
       setGroupOrders(data.orders);
       setIsClosed(!data.open)
       setLoadingGroup(false);
-    } catch (err) {
-      //setError(err.message); 
-      console.error('There was an error!', err);
-    }
-  }
-
-  useEffect(() => {
-    fetchGroupData();
+      })();
 
   }, [])
 
-  const totalCallback = (total, userId) => {
-    totalMap[userId] = total;
-    setTotalMap(totalMap);
-  }
-
-  const getTotalPrice = (type) => {
+  const getOrdersTotalPrice = () => {
     let total = 0;
-
-    Object.keys(totalMap).map(key => {
-      total += totalMap[key];
-    });
-
-    if (type === 'NUMBER'){
-      return total;
-    }else if(type= 'STRING'){
-      const formatter = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      });
-      return formatter.format(total)
+    for (const [key, value] of Object.entries(groupOrders)) {
+      total += getTotalFromOrder(value, flattenMenu(menuData), taxRate)
     }
+    return total;
   }
 
   const handleReload = () => {
@@ -179,11 +156,9 @@ export default function Group() {
         <Order 
           order = {groupOrders[key]} 
           menu = {menuData} 
-          tax = {.07}
+          taxRate = {taxRate}
           title = {key}
           key = {key}
-          totalCallback = {totalCallback}
-          userId = {key}
         />
       )
     });
@@ -236,11 +211,11 @@ export default function Group() {
               <p class = 'text-xl, m-2' key = {email}> {email}</p>
             ))}
           </div>
-            {getTotalPrice('NUMBER')!==0 ? (
+            {totalPrice!==0 ? (
               <>
                 <div class = 'flex justify-between text-2xl m-5'>
                   <p>Total: </p>
-                  <p>{getTotalPrice('STRING')}</p>
+                  <p>{floatToDollars(totalPrice)}</p>
                 </div>
                 <div class = 'm-5'>  
 
@@ -264,7 +239,7 @@ export default function Group() {
         
         <div>
           <div class = 'flex justify-between m-5 text-2xl' > 
-            {getTotalPrice("NUMBER")!==0 ? <p>Orders</p> : <p class = "w-50">No orders yet</p>}
+            {totalPrice !==0 ? <p>Orders</p> : <p class = "w-50">No orders yet</p>}
 
             <Button 
               onClick = {handleReload} 

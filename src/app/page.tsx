@@ -4,11 +4,11 @@ import NextLink from 'next/link'
 
 export default function Home() {
   return (
-    <>
-      <div> What do you want? </div>
+    <div class = "m-10">
+      <div class = "mb-5"> What do you want? </div>
         <NextLink href = '/owner'>
           <Button variant = 'outlined'> Create a Group </Button>
         </NextLink>
-    </>
+    </div>
   );
 }

@@ -72,6 +72,14 @@ export default function Owner() {
     const guests = [];
     const owner = `http://${host}/owner/group?email=${encodeURI(group.owner)}&group=${encodeURI(group.id)}`
    
+    /*const ownerLink = `http://${host}/owner/group?email=${encodeURI(group.owner)}&group=${encodeURI(group.id)}`;
+    owner = `<a href = "${ownerLink}" target = "_blank">${ownerLink}</a>`;
+
+    group.emails.forEach((email) => {
+        const guestLink = `http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(group.id)}`;
+        guests.push(`<a href = "${guestLink}" target = "_blank">${guestLink}</a>`);
+    });*/
+   
     group.emails.forEach((email) => {
         guests.push(`http://${host}/guest?email=${encodeURI(email)}&group=${encodeURI(group.id)}`);
     });

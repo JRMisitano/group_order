@@ -29,6 +29,8 @@ export default function Group() {
   
   const [guestOrder, setGuestOrder] = useState({})
 
+  const taxRate =.07;
+
   useEffect(() => {
     if (orderData && orderData.restaurant) {
       fetch(`https://group-order.jr373.workers.dev/api/menu?value=${orderData.restaurant.menu}`)
@@ -39,6 +41,8 @@ export default function Group() {
         })
     }
   }, [orderData])
+
+  
 
   useEffect(() => {
     const postData = {
@@ -169,7 +173,7 @@ export default function Group() {
           <Order 
             order = {guestOrder} 
             menu = {menuData} 
-            tax = {.07}
+            taxRate = {taxRate}
             title = 'Your Order'
           />
           <div class = 'm-5'>
