@@ -38,7 +38,7 @@ export default function Group() {
   const [totalMap, setTotalMap] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
-  
+
   const searchParams = useSearchParams();
   const ownerEmail = searchParams.get('email'); //get from group?
   const groupId = searchParams.get('group'); //get from group?
@@ -143,6 +143,35 @@ export default function Group() {
     return (orders)
   };
 
+  const handleTimeout = function(){
+    processOrders();
+    setReadyToSubmit(true);
+    setTimeout(()=>{setReadyToSubmit(false)},5000)
+  }
+
+  const renderSubmitButton = () => {
+
+    if(readyToSubmit){
+      return (
+        <Button 
+            onClick = {handleSumbit} 
+            variant = 'outlined'
+          >
+          Sumbit Order 
+        </Button>
+      );
+    } else{
+      return (
+        <Button 
+            onClick = {handleTimeout} 
+            variant = 'outlined'
+          >
+          Update to Submit 
+        </Button>
+      )
+    }
+  }
+
   const renderFinished = () => {
     return (
       <InfoModal 
@@ -186,13 +215,7 @@ export default function Group() {
                   <p>{floatToDollars(totalPrice)}</p>
                 </div>
                 <div class = 'm-5'>  
-
-                <Button 
-                  onClick = {handleSumbit} 
-                  variant = 'outlined'
-                >
-                Sumbit Order 
-              </Button>
+              {renderSubmitButton()}
             </div>
           </>) : (<></>)}
           <div class = 'm-5' />
