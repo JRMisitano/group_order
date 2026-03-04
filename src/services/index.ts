@@ -162,3 +162,43 @@ export const fetchOrder = async (postData) => {
       console.error('There was an error!', err);
     }
   }
+
+  export const fetchSubmitOrder = async (postData) => {
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+     return true;
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  }
+
+  export const fetchCloseGroup = async (postData) => {
+    try {
+      const response = await fetch('https://group-order.jr373.workers.dev/api/close', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: Status ${response.status}`);
+      }
+     return true;
+    } catch (err) {
+      //setError(err.message); 
+      console.error('There was an error!', err);
+    }
+  }

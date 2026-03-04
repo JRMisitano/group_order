@@ -9,7 +9,9 @@ import {
   floatToDollars, 
   flattenMenu,
   fetchMenu,
-  fetchOrders 
+  fetchOrders,
+  fetchSubmitOrder,
+  fetchCloseGroup
 } from '../../../services';
 
 import InfoModal from '../../../components/InfoModal';
@@ -97,23 +99,10 @@ export default function Group() {
       "email": ownerEmail, 
     };
 
-    try {
-      const response = await fetch('https://group-order.jr373.workers.dev/api/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: Status ${response.status}`);
-      }
+    const success = await fetchSubmitOrder(postData)
+    if (success){
       setIsSubmitting(false);
       setIsDone(true);
-    } catch (err) {
-      //setError(err.message); 
-      console.error('There was an error!', err);
     }
   }
 
@@ -130,24 +119,11 @@ export default function Group() {
       "email": ownerEmail, 
     };
 
-    try {
-      const response = await fetch('https://group-order.jr373.workers.dev/api/close', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: Status ${response.status}`);
-      }
+    const success = await fetchSubmitOrder(postData)
+    if (success){
       setIsClosed(true);
       setIsClosing(false);
-    } catch (err) {
-      //setError(err.message); 
-      console.error('There was an error!', err);
-    }
+    }(postData)
   }
 
   const renderOrders = () => {
